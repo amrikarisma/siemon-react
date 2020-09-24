@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import {Menu, X, Search, User, Settings, HelpCircle, Lock, LogOut, Globe, Bell, ChevronDown} from 'react-feather';
+import { Link } from 'react-router-dom';
+import logo from '../../assets/images/logo.png';
 
 export class Topbar extends Component {
 
@@ -8,15 +10,15 @@ export class Topbar extends Component {
             <div className="navbar navbar-expand flex-column flex-md-row navbar-custom">
                 <div className="container-fluid">
                 {/* LOGO */}
-                <a href="index.html" className="navbar-brand mr-0 mr-md-2 logo">
+                <Link to="/" className="navbar-brand mr-0 mr-md-2 logo">
                     <span className="logo-lg">
-                    <img src="assets/images/logo.png" alt="logo" height={24} />
-                    <span className="d-inline h5 ml-1 text-logo">Sistem Informasi Elektronik Monitoring Notaris (siEMON)</span>
+                        <img src={logo} alt="logo" height={24} />
+                        <span className="d-inline h5 ml-1 text-logo">Sistem Informasi Elektronik Monitoring Notaris (siEMON)</span>
+                        </span>
+                        <span className="logo-sm">
+                        <img src={logo} alt="logo" height={24} />
                     </span>
-                    <span className="logo-sm">
-                    <img src="assets/images/logo.png" alt="logo" height={24} />
-                    </span>
-                </a>
+                </Link>
                 <ul className="navbar-nav bd-navbar-nav flex-row list-unstyled menu-left mb-0">
                     <li className="">
                     <button className="button-menu-mobile open-left disable-btn">

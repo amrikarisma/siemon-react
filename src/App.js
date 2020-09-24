@@ -1,22 +1,17 @@
-import React, { Component, Fragment } from 'react'
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
-import Akta from './pages/Akta';
-import Dashboard from './pages/Dashboard'
-import Profile from './pages/profile/Profile';
+import React from 'react'
+import AuthContainer from './components/auth/AuthContainer';
+import { AppProvider } from './contexts/AppContext';
+// import './App.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/scss/theme.scss';
 
-export class App extends Component {
-  render() {
+const App = () => {
+
     return (
-      <Router>
-        <Fragment>
-            <Route path="/" exact component={Dashboard} />
-            <Route path="/akta" component={Akta} />
-            <Route path="/profile" component={Profile} />
-        </Fragment>
-      </Router>
-      
+      <AppProvider>
+        <AuthContainer />
+      </AppProvider>
     )
-  }
 }
 
 export default App
