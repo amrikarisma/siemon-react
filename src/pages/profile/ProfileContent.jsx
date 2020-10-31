@@ -3,9 +3,10 @@ import {NavLink } from 'react-router-dom';
 import { Card, CardBody, Col, Nav, NavItem, Row, TabContent, TabPane } from 'reactstrap';
 import classNames from 'classnames';
 import UserBox from './UserBox';
-import Axios from 'axios';
 import ProfileForm from './ProfileForm';
 import PendidikanFormal from './PendidikanFormal';
+import Api from '../../constants/Api';
+import Axios from 'axios';
 
 export class ProfileContent extends Component {
     constructor(props) {
@@ -13,20 +14,15 @@ export class ProfileContent extends Component {
 
         this.toggleTab = this.toggleTab.bind(this);
         this.state = {
+            isLoaded: false,
             activeTab: '1',
             data: []
         };
     }
-    componentWillMount() {
-        Axios.get("http://localhost:8000/api/user", 
-        {
-          headers: {
-              "Authorization": 'Bearer ' + sessionStorage.getItem('_token'),
-          }
-        }
-        ).then(
+    componentDidMount() {
+        this._asyncRequest = Api.get("user").then(
             (result) => {
-                console.log(result);
+                this._asyncRequest = null;
                 this.setState({
                     isLoaded: true,
                     data:result.data
@@ -44,6 +40,24 @@ export class ProfileContent extends Component {
             }
         )
     }
+    componentWillUnmount() {
+        const CancelToken = Axios.CancelToken;
+        const source = CancelToken.source();
+        
+        Api.get('user', {
+          cancelToken: source.token
+        }).catch(function (thrown) {
+          if (Axios.isCancel(thrown)) {
+            console.log('Request canceled', thrown.message);
+          } else {
+            // handle error
+          }
+        });
+
+        // cancel the request (the message parameter is optional)
+        source.cancel('Operation canceled by the user.');
+
+      }
     /**
      * Toggles tab
      * @param {*} tab 

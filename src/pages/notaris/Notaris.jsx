@@ -4,6 +4,7 @@ import Footer from '../../components/sections/Footer'
 import Header from '../../components/sections/Header'
 import Sidebar from '../../components/sections/Sidebar'
 import Topbar from '../../components/sections/Topbar'
+import Api from '../../constants/Api'
 import NotarisContent from './NotarisContent'
 
 export class Notaris extends Component {
@@ -13,8 +14,8 @@ export class Notaris extends Component {
             data: []
         };
       }
-    componentWillMount() {
-        Axios.get("http://localhost:8000/api/notaris", 
+    componentDidMount() {
+        Api.get("notaris", 
         {
           headers: {
               "Authorization": 'Bearer ' + sessionStorage.getItem('_token'),
@@ -22,10 +23,10 @@ export class Notaris extends Component {
         }
         ).then(
             (result) => {
-                console.log(result);
+                console.log(result.data);
                 this.setState({
                     isLoaded: true,
-                    data:result.data
+                    data:result.data.attributes
                 });
             },
             // Note: it's important to handle errors here
@@ -40,7 +41,24 @@ export class Notaris extends Component {
             }
         )
     }
+    componentWillUnmount() {
+        const CancelToken = Axios.CancelToken;
+        const source = CancelToken.source();
+        
+        Api.get('notaris', {
+        cancelToken: source.token
+        }).catch(function (thrown) {
+        if (Axios.isCancel(thrown)) {
+            console.log('Request canceled', thrown.message);
+        } else {
+            // handle error
+        }
+        });
 
+        // cancel the request (the message parameter is optional)
+        source.cancel('Operation canceled by the user.');
+
+    }
     render() {
         return (
             <div id="wrapper">

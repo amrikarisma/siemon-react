@@ -3,8 +3,9 @@ import Header from '../../components/sections/Header'
 import Footer from '../../components/sections/Footer'
 import Sidebar from '../../components/sections/Sidebar'
 import Topbar from '../../components/sections/Topbar'
-import ProfileContent from './ProfileContent'
-export class Profile extends Component {
+import ProtokolContent from './ProtokolContent'
+
+export class Protokol extends Component {
     render() {
 
         return (
@@ -14,8 +15,8 @@ export class Profile extends Component {
             <div className="content-page">
                 <div className="content">
                     <div className="container-fluid">
-                        <Header title="Profil" />
-                            <ProfileContent />
+                        <Header title="Pemeriksaan Protokol Notaris" />
+                            <ProtokolContent />
                     </div>
                 </div>
                 <Footer />
@@ -25,4 +26,4 @@ export class Profile extends Component {
     }
 }
 
-export default Profile
+export default Protokol

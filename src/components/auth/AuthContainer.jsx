@@ -9,6 +9,7 @@ import Login from '../../pages/auth/Login';
 import Dashboard from '../../pages/dashboard/Dashboard';
 import { Laporan } from '../../pages/laporan/Laporan';
 import Notaris from '../../pages/notaris/Notaris';
+import Protokol from '../../pages/pemeriksaan/Protokol';
 import Profile from '../../pages/profile/Profile';
 
 export class AuthContainer extends Component {
@@ -32,6 +33,7 @@ export class AuthContainer extends Component {
           <PrivateRoute path="/notaris" component={Notaris} />
           <PrivateRoute path="/laporan" component={Laporan} />
           <PrivateRoute path="/profile" component={Profile} />
+          <PrivateRoute path="/protokol" component={Protokol} />
           <Route path="/login" component={Login} />
           {sessionStorage.getItem('_token') ? <Redirect to="/dashboard" /> : <Redirect to="/login" /> }
         </Switch>

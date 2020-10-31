@@ -32,7 +32,7 @@ const columns = [
 
 const defaultSorted = [
     {
-        dataField: 'id',
+        dataField: 'nama_notaris',
         order: 'asc',
     },
 ];

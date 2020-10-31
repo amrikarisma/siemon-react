@@ -1,6 +1,5 @@
 import React from 'react'
-import { Card, CardBody, Col, Progress, Row, Media } from 'reactstrap';
-import profileImg from '../../assets/images/users/avatar-2.jpg';
+import { Card, CardBody, Col, Progress, Row } from 'reactstrap';
 
 const UserBox = (props) => {
     
@@ -10,7 +9,7 @@ const UserBox = (props) => {
                 <Row>
                     <Col>
                         <div className="text-center mt-3">
-                            <img src={profileImg} alt=""
+                            <img src={props.user.foto_notaris} alt=""
                                 className="avatar-lg rounded-circle" />
                             <h5 className="mt-2 mb-0">{props.user.nama_notaris}</h5>
                             <h6 className="text-muted font-weight-normal mt-2 mb-4">Notaris {props.user.nama_kota_kab}</h6>

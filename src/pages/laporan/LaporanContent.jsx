@@ -1,12 +1,11 @@
 import React from 'react'
-import { Card, CardBody, Input, Row, Col, Button } from 'reactstrap';
+import { Card, CardBody, Input, Row, Col } from 'reactstrap';
 import ToolkitProvider, { Search, CSVExport } from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import BootstrapTable from 'react-bootstrap-table-next';
 
 // Style
 import 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min.css';
-import { Loader } from 'react-feather';
 import { Link } from 'react-router-dom';
 
 const columns = [
@@ -35,7 +34,6 @@ const columns = [
         text: 'Laporan',
         sort: false,
         formatter: (rowContent, row) => {
-            console.log(row);
             return (   
                 <Link to={row['file_name']} className="btn btn-sm btn-info">
                     Download

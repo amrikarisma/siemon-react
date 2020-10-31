@@ -1,9 +1,9 @@
-import Axios from 'axios'
 import React, { Component } from 'react'
 import Footer from '../../components/sections/Footer'
 import Header from '../../components/sections/Header'
 import Sidebar from '../../components/sections/Sidebar'
 import Topbar from '../../components/sections/Topbar'
+import Api from '../../constants/Api'
 import LaporanContent from './LaporanContent'
 
 export class Laporan extends Component {
@@ -14,8 +14,8 @@ export class Laporan extends Component {
             isLoaded: false
         };
       }
-    componentWillMount() {
-        Axios.get("http://localhost:8000/api/laporan", 
+    componentDidMount() {
+        Api.get("laporan", 
         {
           headers: {
               "Authorization": 'Bearer ' + sessionStorage.getItem('_token'),
@@ -23,7 +23,6 @@ export class Laporan extends Component {
         }
         ).then(
             (result) => {
-                console.log(result);
                 this.setState({
                     isLoaded: true,
                     data:result.data.attributes

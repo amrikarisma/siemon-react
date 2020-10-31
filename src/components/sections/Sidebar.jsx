@@ -1,8 +1,8 @@
-import Axios from 'axios';
 import React, { Component, useContext } from 'react'
 import {ChevronDown, User, Settings, HelpCircle, Lock, LogOut, Home, Users} from 'react-feather';
 import {Link} from "react-router-dom";
 import { DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
+import Api from '../../constants/Api';
 import { AppContext } from '../../contexts/AppContext';
 export class Sidebar extends Component {
     constructor(props) {
@@ -13,8 +13,8 @@ export class Sidebar extends Component {
           user: []
         };
     }
-    componentWillMount() {
-        Axios.get("http://localhost:8000/api/user", 
+    componentDidMount() {
+        Api.get("user", 
         {
           headers: {
               "Authorization": 'Bearer ' + sessionStorage.getItem('_token'),
@@ -79,7 +79,7 @@ export class Sidebar extends Component {
             {
                 label: 'Pemeriksaan Protokol',
                 icon: Home,
-                redirectTo: "/"
+                redirectTo: "/protokol"
             },
         ];
 
@@ -90,7 +90,7 @@ export class Sidebar extends Component {
                     <img src={this.state.user.foto_notaris} className="avatar-xs rounded-circle mr-2" alt="" />
                     <div className="media-body">
                         <h6 className="pro-user-name mt-0 mb-0">{this.state.user.nama_notaris}</h6>
-                        <span className="pro-user-desc">Administrator</span>
+                        <span className="pro-user-desc">{this.state.user.nama_kota_kab}</span>
                     </div>
                     <UncontrolledDropdown className="align-self-center profile-dropdown-menu">
                         <DropdownToggle 

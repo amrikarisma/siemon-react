@@ -1,46 +1,179 @@
 import React from 'react'
-import { Button, Card, CardBody, Col, CustomInput, Form, FormGroup, Input, Label, Progress, Row } from 'reactstrap';
-import Select from 'react-select';
+import { Button, Card, CardBody, Col, Form, FormGroup, Input, Label, Media, Progress, Row } from 'reactstrap';
 import { Wizard, Steps, Step } from 'react-albus';
 import Flatpickr from 'react-flatpickr'
+import Maps from '../../components/sections/Maps';
+import Api from '../../constants/Api';
+import Select from 'react-select';
+import Moment from 'moment';
+import Axios from 'axios';
+
+
+const options = [
+    { value: 'Usia 65 Tahun', label: 'Usia 65 Tahun'},
+    { value: 'Usia 67 Tahun', label: 'Usia 67 Tahun'},
+    { value: 'Mengundurkan Diri', label: 'Mengundurkan Diri'},
+    { value: 'Meninggal', label: 'Meninggal'}
+  ]
 
 class ProfileForm extends React.Component {
     constructor(props) {
         super(props); // ✅ We passed props
         this.state = {
-            nama_notaris: '',
-            email       : '',
-            tempat_lahir: '',
+            foto_notaris: null,
+            isLoaded: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeSelected = this.handleChangeSelected.bind(this);
+        this.handleChangeDate = this.handleChangeDate.bind(this);
     }
-    handleChange(event) {
-        console.log(event.target)
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-    
+    componentDidMount() {
+        this._asyncRequest =  Api.get("user").then(
+            (result) => {
+                this._asyncRequest = null;
+                this.setState({
+                    isLoaded: true,
+                    id : result.data.id
+                });
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+                console.log(error);
+                this.setState({
+                    isLoaded: true,
+                    error
+                });
+            }
+        )
+    }
+
+    componentWillUnmount() {
+        const CancelToken = Axios.CancelToken;
+        const source = CancelToken.source();
+        
+        Api.get('user', {
+          cancelToken: source.token
+        }).catch(function (thrown) {
+          if (Axios.isCancel(thrown)) {
+            console.log('Request canceled', thrown.message);
+          } else {
+            // handle error
+          }
+        });
+
+        // cancel the request (the message parameter is optional)
+        source.cancel('Operation canceled by the user.');
+
+      }
+    handleChangeDate(event) {
+        const value = event.value;
+        const name = event.name;
         this.setState({
           [name]: value
         });
+ 
+        this._asyncRequest = Api.put(`notaris/`+this.state.id, {
+            id : this.state.id,
+            [name]: value
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    }
+    handleChangeSelected(event) {
+        const value = event.value.value;
+        const name = event.name;
+        this.setState({
+          [name]: value
+        });
+ 
+        this._asyncRequest = Api.put(`notaris/`+this.state.id, {
+            id : this.state.id,
+            [name]: value
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    }
+
+    handleImageChange = (event) => {
+        this.setState({
+            foto_notaris : URL.createObjectURL(event.target.files[0])
+          });
+          let form_data = new FormData();
+          form_data.append(
+              'foto', 
+              event.target.files[0], 
+              event.target.files[0].name
+              );
+            form_data.append('_method','PUT');
+            form_data.append('id',this.state.id);
+
+            console.log(...form_data)
+
+          Api.post('notaris/'+this.state.id, form_data).then(res => {
+          
+              console.log('res: ', res);
+          })
+          .catch(err => console.log('errer:', err))
 
     }
 
-    handleSubmit(event) {
-        alert('A name was submitted: ' + this.state.nama_notaris);
-        event.preventDefault();
+    
+    handleUploadImage = () => {
+        console.log(this.state.image)
+        if(this.state.image){
+            let form_data = new FormData();
+            form_data.append(
+                'image', 
+                this.state.image, 
+                this.state.image.name
+                );
+            Api.post('notaris', form_data, {
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
+            }).then(res => {
+                console.log(res);
+            })
+            .catch(err => console.log(err))
+        }
+    }
+
+    handleChange = (event) => {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value
+        });
+        this._asyncRequest = Api.put(`notaris/`+this.state.id, {
+        id : this.state.id,
+            [name]: value
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     render() {
-
-        const options = [
-            { value: 'Usia 65 Tahun', label: 'Usia 65 Tahun' },
-            { value: 'Usia 67 Tahun', label: 'Usia 67 Tahun' },
-            { value: 'Mengundurkan Diri', label: 'Mengundurkan Diri' },
-            { value: 'Meninggal', label: 'Meninggal' }
-          ]
+        const styles = {
+            height: {
+              height:'300px',
+            },
+          }
 
         return (
             <Card>
@@ -64,6 +197,24 @@ class ProfileForm extends React.Component {
                                         id="data_pribadi"
                                         render={({ next }) => (
                                             <Form>
+                                                <FormGroup row>
+                                                    <Label for="profile_image" md={3}>
+                                                        Foto Profil
+                                                    </Label>
+                                                    <Col md={9}>
+                                                        <Input
+                                                            type="file"
+                                                            name="profile_image"
+                                                            id="profile_image"
+                                                            // value={this.state.foto_notaris ? this.state.foto_notaris : this.props.user.foto_notaris}
+                                                            onChange={this.handleImageChange}
+                                                        />
+
+                                                        <Media height={100} src={this.state.foto_notaris} alt="Generic placeholder image" />
+                                                     
+                                                   
+                                                    </Col>
+                                                </FormGroup>
                                                 <FormGroup row>
                                                     <Label for="nama_notaris" md={3}>
                                                         Nama Notaris
@@ -122,8 +273,9 @@ class ProfileForm extends React.Component {
                                                             }}
                                                             value={this.state.tanggal_lahir ? this.state.tanggal_lahir : this.props.user.tanggal_lahir}
                                                             onChange={(date) => {
-                                                                this.setState({
-                                                                    'tanggal_lahir' : date[0],
+                                                                this.handleChangeDate({
+                                                                    name : 'tanggal_lahir',
+                                                                    value : Moment(date[0]).format('YYYY-MM-DD')
                                                                 })
                                                               }}
                                                         />
@@ -191,6 +343,13 @@ class ProfileForm extends React.Component {
                                                     </Col>
                                                 </FormGroup>
                                                 <FormGroup row>
+                                                    <Label for="maps" md={3}>
+                                                    </Label>
+                                                    <Col md={9} style={styles.height}>
+                                                        <Maps />
+                                                    </Col>
+                                                </FormGroup>
+                                                <FormGroup row>
                                                     <Label for="no_telepon_kantor_notaris" md={3}>
                                                         No. Telepon Kantor
                                                     </Label>
@@ -206,10 +365,6 @@ class ProfileForm extends React.Component {
                                                         />
                                                     </Col>
                                                 </FormGroup>
- 
-    
-
-    
                                                 <ul className="list-inline wizard mb-0">
                                                     <li className="previous list-inline-item">
                                                         <Button onClick={previous} color="info">
@@ -240,7 +395,9 @@ class ProfileForm extends React.Component {
                                                             id="nomor_ijazah_mkn"
                                                             placeholder="No ijazah MKN"
                                                             value={this.state.nomor_ijazah_mkn ? this.state.nomor_ijazah_mkn : this.props.user.nomor_ijazah_mkn}
-                                                            onChange={this.handleChange}
+                                                            onChange={(date) => 
+                                                                {this.handleChangeDate()}
+                                                            }
 
                                                         />
                                                     </Col>
@@ -253,27 +410,28 @@ class ProfileForm extends React.Component {
                                                                 altFormat: "F j, Y",
                                                                 dateFormat: "Y-m-d",
                                                             }}
+                                                            name="tanggal_ijazah_mkn"
                                                             value={this.state.tanggal_ijazah_mkn ? this.state.tanggal_ijazah_mkn : this.props.user.tanggal_ijazah_mkn}
                                                             onChange={(date) => {
-                                                                this.setState({
-                                                                    'tanggal_ijazah_mkn' : date[0],
+                                                                this.handleChangeDate({
+                                                                    name : 'tanggal_ijazah_mkn',
+                                                                    value : Moment(date[0]).format('YYYY-MM-DD')
                                                                 })
                                                               }}
                                                         />
                                                     </Col>
                                                 </FormGroup>
- 
                                                 <FormGroup row>
-                                                    <Label for="nomor_bap_sumpah_jabatan" md={3}>
+                                                    <Label for="bap_sumpah_jabatan" md={3}>
                                                         No. BAP Sumpah Jabatan
                                                     </Label>
                                                     <Col md={9}>
                                                         <Input
                                                             type="text"
-                                                            name="nomor_bap_sumpah_jabatan"
-                                                            id="nomor_bap_sumpah_jabatan"
+                                                            name="bap_sumpah_jabatan"
+                                                            id="bap_sumpah_jabatan"
                                                             placeholder="No BAP Sumpah Jabatan"
-                                                            value={this.state.nomor_bap_sumpah_jabatan ? this.state.nomor_bap_sumpah_jabatan : this.props.user.nomor_bap_sumpah_jabatan}
+                                                            value={this.state.bap_sumpah_jabatan ? this.state.bap_sumpah_jabatan : this.props.user.bap_sumpah_jabatan}
                                                             onChange={this.handleChange}
 
                                                         />
@@ -303,10 +461,12 @@ class ProfileForm extends React.Component {
                                                                 altFormat: "F j, Y",
                                                                 dateFormat: "Y-m-d",
                                                             }}
+                                                            name="tanggal_sk_pengangkatan"
                                                             value={this.state.tanggal_sk_pengangkatan ? this.state.tanggal_sk_pengangkatan : this.props.user.tanggal_sk_pengangkatan}
                                                             onChange={(date) => {
-                                                                this.setState({
-                                                                    'tanggal_sk_pengangkatan' : date[0],
+                                                                this.handleChangeDate({
+                                                                    name : 'tanggal_sk_pengangkatan',
+                                                                    value : Moment(date[0]).format('YYYY-MM-DD')
                                                                 })
                                                               }}
                                                         />
@@ -337,10 +497,12 @@ class ProfileForm extends React.Component {
                                                                 altFormat: "F j, Y",
                                                                 dateFormat: "Y-m-d",
                                                             }}
+                                                            name="tanggal_sk_penunjukan"
                                                             value={this.state.tanggal_sk_penunjukan ? this.state.tanggal_sk_penunjukan : this.props.user.tanggal_sk_penunjukan}
                                                             onChange={(date) => {
-                                                                this.setState({
-                                                                    'tanggal_sk_penunjukan' : date[0],
+                                                                this.handleChangeDate({
+                                                                    name : 'tanggal_sk_penunjukan',
+                                                                    value : Moment(date[0]).format('YYYY-MM-DD')
                                                                 })
                                                               }}
                                                         />
@@ -405,12 +567,14 @@ class ProfileForm extends React.Component {
                                                             altFormat: "F j, Y",
                                                             dateFormat: "Y-m-d",
                                                         }}
+                                                        name="tanggal_sk_pindah"
                                                         value={this.state.tanggal_sk_pindah ? this.state.tanggal_sk_pindah : this.props.user.tanggal_sk_pindah}
                                                         onChange={(date) => {
-                                                            this.setState({
-                                                                'tanggal_sk_pindah' : date[0],
+                                                            this.handleChangeDate({
+                                                                name : 'tanggal_sk_pindah',
+                                                                value : Moment(date[0]).format('YYYY-MM-DD')
                                                             })
-                                                        }}
+                                                          }}
                                                     />
                                                 </Col>
                                             </FormGroup>
@@ -454,12 +618,14 @@ class ProfileForm extends React.Component {
                                                             altFormat: "F j, Y",
                                                             dateFormat: "Y-m-d",
                                                         }}
+                                                        name="tanggal_sk_perpanjangan_jabatan"
                                                         value={this.state.tanggal_sk_perpanjangan_jabatan ? this.state.tanggal_sk_perpanjangan_jabatan : this.props.user.tanggal_sk_perpanjangan_jabatan}
                                                         onChange={(date) => {
-                                                            this.setState({
-                                                                'tanggal_sk_perpanjangan_jabatan' : date[0],
+                                                            this.handleChangeDate({
+                                                                name : 'tanggal_sk_perpanjangan_jabatan',
+                                                                value : Moment(date[0]).format('YYYY-MM-DD')
                                                             })
-                                                        }}
+                                                          }}
                                                     />
                                                 </Col>
                                             </FormGroup>
@@ -487,12 +653,14 @@ class ProfileForm extends React.Component {
                                                             altFormat: "F j, Y",
                                                             dateFormat: "Y-m-d",
                                                         }}
+                                                        name="tanggal_sk_pemberhentian"
                                                         value={this.state.tanggal_sk_pemberhentian ? this.state.tanggal_sk_pemberhentian : this.props.user.tanggal_sk_pemberhentian}
                                                         onChange={(date) => {
-                                                            this.setState({
-                                                                'tanggal_sk_pemberhentian' : date[0],
+                                                            this.handleChangeDate({
+                                                                name : 'tanggal_sk_pemberhentian',
+                                                                value : Moment(date[0]).format('YYYY-MM-DD')
                                                             })
-                                                        }}
+                                                          }}
                                                     />
                                                 </Col>
                                             </FormGroup>
@@ -501,7 +669,18 @@ class ProfileForm extends React.Component {
                                                     Keterangan Pemberhentian
                                                 </Label>
                                                 <Col md={9}>
-                                                    <Select options={options} />
+                                                    <Select 
+                                                    name="keterangan_pemberhentian"
+                                                    options={options} 
+                                                    value={this.state.keterangan_pemberhentian ? this.state.keterangan_pemberhentian : this.props.user.keterangan_pemberhentian}
+                                                    onChange={(value) => {
+                                                        this.handleChangeSelected({
+                                                            name    : 'keterangan_pemberhentian',
+                                                            value   :  value
+                                                        })
+                                                    }}
+                                                    />
+                                         
                                                 </Col>
                                             </FormGroup>
                                             <ul className="list-inline wizard mb-0">
